@@ -43,7 +43,9 @@ add_executable(${PROJECT_NAME}
   src/image_streamer.cpp
   src/libav_streamer.cpp
   src/vp8_streamer.cpp
-  src/jpeg_streamers.cpp)
+  src/jpeg_streamers.cpp
+  src/png_streamers.cpp
+)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
