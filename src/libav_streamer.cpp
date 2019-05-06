@@ -1,6 +1,10 @@
 #include "web_video_server/libav_streamer.h"
 #include "async_web_server_cpp/http_reply.hpp"
 
+/*https://stackoverflow.com/questions/46884682/error-in-building-opencv-with-ffmpeg*/
+#define AV_CODEC_FLAG_GLOBAL_HEADER (1 << 22)
+#define CODEC_FLAG_GLOBAL_HEADER AV_CODEC_FLAG_GLOBAL_HEADER
+
 namespace web_video_server
 {
 
@@ -83,10 +87,11 @@ LibavStreamer::~LibavStreamer()
   }
   if (io_buffer_)
     delete io_buffer_;
-  if (format_context_->pb)
-    av_free(format_context_->pb);
-  if (format_context_)
+  if (format_context_) {
+    if (format_context_->pb)
+      av_free(format_context_->pb);
     avformat_free_context(format_context_);
+  }
   if (sws_context_)
     sws_freeContext(sws_context_);
 }

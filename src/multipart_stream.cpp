@@ -4,8 +4,12 @@
 namespace web_video_server
 {
 
-MultipartStream::MultipartStream(async_web_server_cpp::HttpConnectionPtr& connection, const std::string& boundry)
-  : connection_(connection), boundry_(boundry) {}
+MultipartStream::MultipartStream(
+    async_web_server_cpp::HttpConnectionPtr& connection,
+    const std::string& boundry,
+    std::size_t max_queue_size)
+  : connection_(connection), boundry_(boundry), max_queue_size_(max_queue_size)
+{}
 
 void MultipartStream::sendInitialHeader() {
   async_web_server_cpp::HttpReply::builder(async_web_server_cpp::HttpReply::ok).header("Connection", "close").header(
@@ -30,24 +34,52 @@ void MultipartStream::sendPartHeader(const ros::WallTime &time, const std::strin
   connection_->write(async_web_server_cpp::HttpReply::to_buffers(*headers), headers);
 }
 
-void MultipartStream::sendPartFooter() {
-  connection_->write("\r\n--"+boundry_+"\r\n");
+void MultipartStream::sendPartFooter(const ros::WallTime &time) {
+  boost::shared_ptr<std::string> str(new std::string("\r\n--"+boundry_+"\r\n"));
+  PendingFooter pf;
+  pf.timestamp = time;
+  pf.contents = str;
+  connection_->write(boost::asio::buffer(*str), str);
+  if (max_queue_size_ > 0) pending_footers_.push(pf);
 }
 
 void MultipartStream::sendPartAndClear(const ros::WallTime &time, const std::string& type,
 				       std::vector<unsigned char> &data) {
-  sendPartHeader(time, type, data.size());
-  connection_->write_and_clear(data);
-  sendPartFooter();
+  if (!isBusy())
+  {
+    sendPartHeader(time, type, data.size());
+    connection_->write_and_clear(data);
+    sendPartFooter(time);
+  }
 }
 
 void MultipartStream::sendPart(const ros::WallTime &time, const std::string& type,
 			       const boost::asio::const_buffer &buffer,
 			       async_web_server_cpp::HttpConnection::ResourcePtr resource) {
-  sendPartHeader(time, type, boost::asio::buffer_size(buffer));
-  connection_->write(buffer, resource);
-  sendPartFooter();
+  if (!isBusy())
+  {
+    sendPartHeader(time, type, boost::asio::buffer_size(buffer));
+    connection_->write(buffer, resource);
+    sendPartFooter(time);
+  }
 }
 
+bool MultipartStream::isBusy() {
+  ros::WallTime currentTime = ros::WallTime::now();
+  while (!pending_footers_.empty())
+  {
+    if (pending_footers_.front().contents.expired()) {
+      pending_footers_.pop();
+    } else {
+      ros::WallTime footerTime = pending_footers_.front().timestamp;
+      if ((currentTime - footerTime).toSec() > 0.5) {
+        pending_footers_.pop();
+      } else {
+        break;
+      }
+    }
+  }
+  return !(max_queue_size_ == 0 || pending_footers_.size() < max_queue_size_);
+}
 
 }

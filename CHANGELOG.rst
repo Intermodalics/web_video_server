@@ -2,6 +2,51 @@
 Changelog for package web_video_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.0 (2019-01-30)
+------------------
+* Add "default_stream_type" parameter (`#84 <https://github.com/RobotWebTools/web_video_server/issues/84>`_)
+  This allows users to specify default stream type in their .launch files. Using a "ros_compressed" stream type sometimes
+  results in a much lower resource consumption, and having it set as a default is much nicer for end users.
+* Add a workaround for MultipartStream constant busy state (`#83 <https://github.com/RobotWebTools/web_video_server/issues/83>`_)
+  * Add a workaround for MultipartStream constant busy state
+  * Remove C++11 features
+* lax rule for topic name (`#77 <https://github.com/RobotWebTools/web_video_server/issues/77>`_)
+* Add PngStreamer (`#74 <https://github.com/RobotWebTools/web_video_server/issues/74>`_)
+* fix SteadyTimer check for backported ROS versions (`#71 <https://github.com/RobotWebTools/web_video_server/issues/71>`_)
+  i.e. on current kinetic
+* Pkg format 2 (`#68 <https://github.com/RobotWebTools/web_video_server/issues/68>`_)
+  * use package format 2
+  * add missing dependency on sensor_msgs
+* fixed undeclared CODEC_FLAG_GLOBAL_HEADER (`#65 <https://github.com/RobotWebTools/web_video_server/issues/65>`_)
+* Contributors: Andreas Klintberg, Dirk Thomas, Felix Ruess, Kazuto Murase, Viktor Kunovski, sfalexrog
+
+0.1.0 (2018-07-01)
+------------------
+* Avoid queuing of images on slow ethernet connection (`#64 <https://github.com/RobotWebTools/web_video_server/issues/64>`_)
+* use SteadyTimer (if available) for cleaning up inactive streams (`#63 <https://github.com/RobotWebTools/web_video_server/issues/63>`_)
+  * use SteadyTimer for cleaning up inactive streams
+  so that cleanup works correctly even if system time changes
+  SteadyTimer is available since roscpp 1.13.1
+  * possibility to use SteadyTimer on older ROS versions
+  when SteadyTimer has been backported to those...
+* Fix segfault in libav_streamer destructor (resolves `#59 <https://github.com/RobotWebTools/web_video_server/issues/59>`_) (`#60 <https://github.com/RobotWebTools/web_video_server/issues/60>`_)
+* Fix vp8 in kinetic add vp9 and h264 support (`#52 <https://github.com/RobotWebTools/web_video_server/issues/52>`_)
+  * fix vp8 in kinetic
+  * add h264 and vp9 support
+* Add Indigo test matrix in travis configuration (`#50 <https://github.com/RobotWebTools/web_video_server/issues/50>`_)
+* Set image streamer as inactive if topic is not available (`#53 <https://github.com/RobotWebTools/web_video_server/issues/53>`_)
+  * Resolves `#38 <https://github.com/RobotWebTools/web_video_server/issues/38>`_
+* Fix Build for ubuntu 14.04 (`#48 <https://github.com/RobotWebTools/web_video_server/issues/48>`_)
+  * fix issue `#47 <https://github.com/RobotWebTools/web_video_server/issues/47>`_
+  * fix double free
+* Revert "use SteadyTimer for cleaning up inactive streams (`#45 <https://github.com/RobotWebTools/web_video_server/issues/45>`_)" (`#51 <https://github.com/RobotWebTools/web_video_server/issues/51>`_)
+  This reverts commit ae74f19ada22f288a7c7a99ada7a1b9b6037c7ce.
+* use SteadyTimer for cleaning up inactive streams (`#45 <https://github.com/RobotWebTools/web_video_server/issues/45>`_)
+  so that cleanup works correctly even if system time changes
+* Use trusty instead of xenial.  See `travis-ci/travis-ci#7260 <https://github.com/travis-ci/travis-ci/issues/7260>`_ (`#49 <https://github.com/RobotWebTools/web_video_server/issues/49>`_)
+  * Also see `RobotWebTools/rosbridge_suite#311 <https://github.com/RobotWebTools/rosbridge_suite/issues/311>`_
+* Contributors: Felix Ruess, James Bailey, Jihoon Lee, randoms, schallerr
+
 0.0.7 (2017-11-20)
 ------------------
 * Ffmpeg 3 (`#43 <https://github.com/RobotWebTools/web_video_server/issues/43>`_)
